@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesan Untukmu</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Comic Sans MS', 'Segoe UI', cursive, sans-serif;
+    background: #7a5c4a;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* ====== KERTAS BUKU ====== */
+  .notebook {
+    width: 100%;
+    max-width: 1000px;
+    min-height: 100vh;
+    background: #f5e6c8;
+    background-image:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 49px,
+        #8b7355 49px,
+        #8b7355 50px
+      );
+    background-position: 0 100px;
+    position: relative;
+    padding: 100px 40px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+  }
+
+  /* ====== SPIRAL BUKU ====== */
+  .spiral {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: linear-gradient(to bottom, #5c2c2c 0%, #6b3535 40%, #7d3a3a 100%);
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding: 0 10px;
+    border-bottom: 3px solid #4a2020;
+    z-index: 10;
+  }
+
+  .spiral-hole {
+    width: 22px;
+    height: 55px;
+    background: radial-gradient(circle at 50% 100%, #2a1010 0%, #2a1010 45%, #3d1a1a 50%, #7d3a3a 60%, #7d3a3a 100%);
+    border-radius: 0 0 50% 50%;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .spiral-hole::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 12px;
+    background: #3d1a1a;
+    border-radius: 3px;
+  }
+
+  .spiral-hole::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    background: #1a0808;
+    border-radius: 50%;
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  /* ====== KONTEN ====== */
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    flex: 1;
+    padding: 30px 0;
+  }
+
+  /* ====== KARTU POLAROID ====== */
+  .card {
+    background: #fefefe;
+    padding: 22px 22px 20px;
+    box-shadow:
+      6px 6px 0 rgba(0, 0, 0, 0.15),
+      0 10px 30px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    max-width: 320px;
+    width: 90%;
+    text-align: center;
+    animation: cardPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes cardPop {
+    0% { opacity: 0; transform: scale(0.85) translateY(20px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .card-image {
+    background: #e8c4b0;
+    border-radius: 2px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .card-image img {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+  }
+
+  .card-text {
+    font-size: 1.05em;
+    color: #2a2a2a;
+    font-weight: bold;
+    line-height: 1.5;
+    padding: 4px 8px;
+  }
+
+  /* ====== TOMBOL LANJUT ====== */
+  .btn-next {
+    margin-top: 70px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 1.15em;
+    color: #3d2a1f;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-next:hover {
+    color: #8b4040;
+    transform: translateY(-2px);
+  }
+
+  /* ====== TOMBOL LOVE ====== */
+  .btn-love {
+    margin-top: 60px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 20px;
+    transition: all 0.3s ease;
+    animation: heartbeat 1.5s infinite;
+  }
+
+  .btn-love:hover { transform: scale(1.15); }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.08); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.05); }
+  }
+
+  .heart-svg {
+    width: 90px;
+    height: 90px;
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.15));
+  }
+
+  .love-hint {
+    margin-top: 20px;
+    color: #3d2a1f;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  /* ====== HALAMAN AWAL (KLIK LOVE) ====== */
+  .opening {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+    animation: letterFade 1s ease;
+  }
+
+  .opening-title {
+    font-size: 1.5em;
+    color: #5c2c2c;
+    font-weight: bold;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+    line-height: 50px;
+  }
+
+  .opening-sub {
+    font-size: 1em;
+    color: #7a5c4a;
+    margin-bottom: 25px;
+    font-style: italic;
+    line-height: 50px;
+  }
+
+  .opening .heart-svg {
+    width: 110px;
+    height: 110px;
+  }
+
+  .opening-hint {
+    margin-top: 25px;
+    color: #3d2a1f;
+    font-weight: bold;
+    letter-spacing: 1px;
+    font-size: 1.05em;
+    line-height: 50px;
+  }
+
+  /* ====== SURAT PANJANG ====== */
+  .letter {
+    width: 100%;
+    max-width: 780px;
+    padding: 0 30px;
+    margin-top: -25px;
+    color: #2a1a10;
+    font-size: 1.12em;
+    line-height: 50px;
+    letter-spacing: 0.2px;
+    text-align: justify;
+    animation: letterFade 1.2s ease;
+  }
+
+  @keyframes letterFade {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .letter .greeting {
+    font-size: 1.4em;
+    font-weight: bold;
+    line-height: 50px;
+    margin-bottom: 0;
+    color: #5c2c2c;
+  }
+
+  .letter p {
+    margin: 0;
+    padding: 0;
+    line-height: 50px;
+    text-indent: 0;
+  }
+
+  .letter .emphasis {
+    font-style: italic;
+    font-weight: bold;
+    color: #8b4040;
+  }
+
+  .letter .signature {
+    margin-top: 0;
+    text-align: right;
+    font-style: italic;
+    line-height: 50px;
+    color: #3d2a1f;
+  }
+
+  .letter .signature .name {
+    display: block;
+    font-weight: bold;
+    font-style: normal;
+    font-size: 1.15em;
+    color: #5c2c2c;
+    line-height: 50px;
+  }
+
+  /* ====== MUSIK TOGGLE (pojok kanan atas) ====== */
+  .music-toggle {
+    position: fixed;
+    top: 85px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(139, 64, 64, 0.9);
+    border: 2px solid #5c2c2c;
+    color: #fff;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+  }
+
+  .music-toggle:hover { transform: scale(1.1); }
+  .music-toggle.show { display: flex; }
+
+  .music-toggle.playing {
+    animation: musicPulse 1.5s infinite;
+  }
+
+  @keyframes musicPulse {
+    0%, 100% { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 0 rgba(139, 64, 64, 0.6); }
+    50% { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 12px rgba(139, 64, 64, 0); }
+  }
+
+  /* ====== RESPONSIF ====== */
+  @media (max-width: 600px) {
+    .notebook {
+      padding: 80px 18px 50px;
+      background-size: 100% 42px;
+      background-position: 0 80px;
+      background-image:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0px,
+          transparent 41px,
+          #8b7355 41px,
+          #8b7355 42px
+        );
+    }
+
+    .spiral { height: 60px; }
+    .spiral-hole { width: 16px; height: 45px; }
+    .spiral-hole::before { width: 12px; height: 10px; }
+
+    .card { max-width: 280px; }
+    .card-text { font-size: 0.95em; }
+    .btn-next { font-size: 1em; margin-top: 55px; }
+    .heart-svg { width: 75px; height: 75px; }
+
+    .opening-title { font-size: 1.25em; line-height: 42px; }
+    .opening-sub { font-size: 0.95em; line-height: 42px; margin-bottom: 20px; }
+    .opening .heart-svg { width: 90px; height: 90px; }
+    .opening-hint { font-size: 1em; line-height: 42px; }
+
+    .letter {
+      font-size: 1em;
+      line-height: 42px;
+      padding: 0 10px;
+      margin-top: -20px;
+      text-align: left;
+    }
+
+    .letter .greeting { font-size: 1.15em; line-height: 42px; }
+
+    .letter p,
+    .letter .signature,
+    .letter .signature .name {
+      line-height: 42px;
+    }
+
+    .music-toggle { top: 75px; right: 12px; width: 38px; height: 38px; font-size: 16px; }
+  }
+
+  @media (max-width: 400px) {
+    .spiral { justify-content: space-between; padding: 0 5px; }
+    .spiral-hole { width: 14px; height: 40px; }
+    .letter { font-size: 0.95em; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Audio (ganti src dengan lagu pilihanmu) -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="Virgoun.mp3" type="audio/mpeg">
+</audio>
+
+<div class="notebook">
+  <div class="spiral" id="spiral"></div>
+  <div class="content" id="content"></div>
+</div>
+
+<script>
+/* ====== BUAT SPIRAL ====== */
+const spiral = document.getElementById('spiral');
+const spiralCount = window.innerWidth < 500 ? 12 : 20;
+for (let i = 0; i < spiralCount; i++) {
+  const hole = document.createElement('div');
+  hole.className = 'spiral-hole';
+  spiral.appendChild(hole);
+}
+
+/* ====== DATA SLIDE ====== */
+/* Slide pertama = opening "Klik Love" */
+const slides = [
+  { type: 'opening' },
+  {
+    type: 'card',
+    img: 'https://i.pinimg.com/originals/8f/6c/2c/8f6c2c4e5d5c3e5e5e5e5e5e5e5e5e5e.png',
+    text: 'Hallo sayang'
+  },
+  {
+    type: 'card',
+    img: 'https://i.pinimg.com/originals/8f/6c/2c/8f6c2c4e5d5c3e5e5e5e5e5e5e5e5e5e.png',
+    text: 'Selamat ulang tahun ya'
+  },
+  {
+    type: 'card',
+    img: 'https://i.pinimg.com/originals/8f/6c/2c/8f6c2c4e5d5c3e5e5e5e5e5e5e5e5e5e.png',
+    text: 'Yuk tunggu apalagi??'
+  },
+  {
+    type: 'card',
+    img: 'https://i.pinimg.com/originals/8f/6c/2c/8f6c2c4e5d5c3e5e5e5e5e5e5e5e5e5e.png',
+    text: 'Bisa custom ucapan dan musik sesuai keinginan'
+  },
+  {
+    type: 'card',
+    img: 'https://i.pinimg.com/originals/8f/6c/2c/8f6c2c4e5d5c3e5e5e5e5e5e5e5e5e5e.png',
+    text: 'Buruan order di Deka Tutorial'
+  },
+  { type: 'love' },
+  { type: 'letter' }
+];
+
+let currentSlide = 0;
+
+/* ====== ISI SURAT PANJANG ====== */
+const letterContent = {
+  greeting: 'Untuk kamu, Durrotun Al Islamiyah,',
+  paragraphs: [
+    'Happy Birthday Miaa,, semoga dengan bertambahnya usia mia, semkain sempurna juga imane mia, rajin ibadahnya, selalu diberi kesehatan sama Allah, panjang umur, berbakti terus sama orang tua, serta segala doa dan cita cita yang mia inginkan bisa terwujud dan dimudahkan dalam segala urusan. Aamiinn yeyeeyy sekarang mia ulang tahun, sekarang mia semakin dewasa yang dimana mia pasti tau yang terbaik maupun yang ga buat diri mia, harus lebih dewasa dari sebelumnya yaa, jangan pernah capek buat perbaiki diri jadi lebih baik lagi semangat terus buat kejar semua keinginan mia, mia pasti bisa, jangan pernah takut gagal yaa, aku selalu dukung dan support mia, semangat terus yaa, aku selalu ada disamping mia, selalu rendah hati, jadi anak baik yaa, selalu sayang sama keluarga, jangan lupa untuk selalu bersyukur yaa, semoga apapun yang mia lakukan hari ini dan hari berikutnya selalu diberi kelancaran serta keselamatan, Aamiin...',
+    'Ada banyak hal yang ingin kukatakan, tapi kata-kata sering kali terasa kurang. Karena itu izinkan aku mengucapkannya pelan-pelan: <span class="emphasis">terima kasih telah lahir ke dunia ini.</span> Terima kasih telah tumbuh menjadi diri mia seutuhnya, dengan segala hal baik yang mia miliki, dan dengan semua kekurangan yang justru membuat mia semakin nyata di mataku.',
+    'Terima kasih telah hadir dalam hidupku. Karena bersama mia, hal-hal biasa terasa lebih berarti. Pagi yang sederhana, percakapan ringan, diam yang nyaman, semuanya menjadi sesuatu yang aku syukuri. Aku tidak akan berjanji tentang hal-hal yang terlalu besar. Aku hanya ingin berjanji satu hal: aku akan terus ada di hari-hari baiknya mia, dan terlebih di hari-hari sulit nya mia.',
+    'Semoga tahun ini memberi mia lebih banyak alasan untuk tersenyum. Semoga kesehatan, ketenangan, dan hal-hal baik selalu menemani mia. Dan semoga, apa pun yang terjadi, mia tahu bahwa mia tidak pernah berjalan sendirian.',
+    'Selamat ulang tahun sekali lagi. <span class="emphasis">Aku sayang mia dengan cara yang tenang, tapi sungguh-sungguh.</span>'
+  ],
+  signature: '',
+  name: 'M. Lutfi'
+};
+
+/* ====== MUSIK ====== */
+const music = document.getElementById('bgMusic');
+const musicToggle = document.getElementById('musicToggle');
+let musicStarted = false;
+
+function startMusic() {
+  if (musicStarted) return;
+  music.volume = 1.0;
+  const playPromise = music.play();
+  if (playPromise !== undefined) {
+    playPromise
+      .then(() => {
+        musicStarted = true;
+        musicToggle.classList.add('show', 'playing');
+        musicToggle.textContent = '🎵';
+      })
+      .catch(err => {
+        console.log('Autoplay diblokir:', err);
+        // tetap tampilkan tombol agar bisa diklik manual
+        musicToggle.classList.add('show');
+        musicToggle.textContent = '🔇';
+      });
+  }
+}
+
+function toggleMusic() {
+  if (music.paused) {
+    music.play();
+    musicToggle.classList.add('playing');
+    musicToggle.textContent = '🎵';
+  } else {
+    music.pause();
+    musicToggle.classList.remove('playing');
+    musicToggle.textContent = '🔇';
+  }
+}
+
+/* ====== RENDER SLIDE ====== */
+function renderSlide() {
+  const content = document.getElementById('content');
+  const slide = slides[currentSlide];
+
+  /* --- Slide OPENING (Klik Love) --- */
+  if (slide.type === 'opening') {
+    content.innerHTML = `
+      <div class="opening">
+        <div class="opening-title">Ada pesan untukmu 💌</div>
+        <div class="opening-sub">— klik love di bawah untuk membuka —</div>
+        <button class="btn-love" onclick="startExperience()">
+          <svg class="heart-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 88 C 20 65, 5 45, 5 30 C 5 15, 18 5, 32 5 C 42 5, 48 12, 50 18 C 52 12, 58 5, 68 5 C 82 5, 95 15, 95 30 C 95 45, 80 65, 50 88 Z"
+                  fill="#8b4040"/>
+          </svg>
+        </button>
+        <div class="opening-hint">Klik Love-nya</div>
+      </div>
+    `;
+    return;
+  }
+
+  /* --- Slide LOVE (sebelum surat) --- */
+  if (slide.type === 'love') {
+    content.innerHTML = `
+      <button class="btn-love" onclick="nextSlide()">
+        <svg class="heart-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 88 C 20 65, 5 45, 5 30 C 5 15, 18 5, 32 5 C 42 5, 48 12, 50 18 C 52 12, 58 5, 68 5 C 82 5, 95 15, 95 30 C 95 45, 80 65, 50 88 Z"
+                fill="#8b4040"/>
+        </svg>
+      </button>
+      <div class="love-hint">Klik Love-nya</div>
+    `;
+    return;
+  }
+
+  /* --- Slide SURAT PANJANG --- */
+  if (slide.type === 'letter') {
+    const paragraphsHTML = letterContent.paragraphs
+      .map(p => `<p>${p}</p>`)
+      .join('');
+
+    let signatureHTML = '';
+    if (letterContent.signature || letterContent.name) {
+      signatureHTML = `
+        <div class="signature">
+          ${letterContent.signature}
+          ${letterContent.name ? `<span class="name">${letterContent.name}</span>` : ''}
+        </div>
+      `;
+    }
+
+    content.innerHTML = `
+      <div class="letter">
+        <div class="greeting">${letterContent.greeting}</div>
+        ${paragraphsHTML}
+        ${signatureHTML}
+      </div>
+    `;
+    return;
+  }
+
+  /* --- Slide KARTU --- */
+  content.innerHTML = `
+    <div class="card">
+      <div class="card-image">
+        <img src="${slide.img}" alt="Ilustrasi"
+             onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\'font-size:80px\\'>🐻</span>';">
+      </div>
+      <div class="card-text">${slide.text}</div>
+    </div>
+    <button class="btn-next" onclick="nextSlide()">[ Lanjut ]</button>
+  `;
+}
+
+/* ====== NAVIGASI ====== */
+function nextSlide() {
+  if (currentSlide < slides.length - 1) {
+    currentSlide++;
+    renderSlide();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+/* ====== START EXPERIENCE (dari opening) ====== */
+function startExperience() {
+  // Putar musik — dipicu oleh klik user jadi diizinkan browser
+  startMusic();
+
+  // Lanjut ke slide berikutnya
+  currentSlide = 1;
+  renderSlide();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ====== INIT ====== */
+renderSlide();
+</script>
+
+</body>
+</html>
